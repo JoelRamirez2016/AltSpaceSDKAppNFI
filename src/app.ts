@@ -12,12 +12,7 @@ import fetch from "cross-fetch";
  */
 export default class HistoryApp {
 	private history: MRE.Actor[] = [];
-	// private entListEnabled = false;
-	// private entlist: MRE.Actor = null;
-	// private expeListEnabled = false;
-	// private expelist: MRE.Actor = null;
 	private lists: MRE.Actor[] = [];
-	private NufiBtn: MRE.Actor = null;
 	private assets: MRE.AssetContainer;
 
 	constructor(private context: MRE.Context) {
@@ -39,25 +34,31 @@ export default class HistoryApp {
 				collider: { geometry: { shape: MRE.ColliderType.Box, size: { x: 0.5, y: 0.5, z: 0.5 } } }
 			}
 		});
+		
 		NufiBtn.setBehavior(MRE.ButtonBehavior).onClick(user => {
+			const checked = MRE.Actor.CreateFromLibrary(user.context, {
+				resourceId: 'artifact:1143409001526984966',
+				actor: {
+					attachment: {
+						attachPoint: "right-hand",
+						userId: user.id
+					},
+					transform: {
+						local: { rotation: { y: 50, z: -30, } }
+					}
+				}
+			});	
+			// this..attach(user, "head");
 			user.prompt(`
 		Type The Name Of the Moral Person
 		(e.g. 'Victor Hugo').`, true)
 			.then(res => {	
 				if(res.submitted && res.text.length > 0){
-					// if (this.entListEnabled){
-					// 	this.entlist.destroy();
-					// 	this.entListEnabled = false;
-					// 	this.expelist.destroy();
-					// 	this.expeListEnabled = false;
-					// }
 					this.request(`{"nombre": "${res.text}", 
 					"fecha_inicio": "01-01-2020", 
 					"fecha_fin": "01-08-2020"}`, (res: any) => {
 						const entidades = res.data.resultados.reverse()
 						this.createList(0, "Entidades", -2, entidades, "entidad", (el: any) => {
-						
-							console.log(this.lists.length);
 							const entidad = res.data.resultados.find((x: any) => x.entidad === el.entidad);
 							this.createList(1, "Expedientes", -4,
 								entidad.expedientes.reverse(), "expediente", 
